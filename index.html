@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Quote Generator</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap');
+
+    body {
+      font-family: 'Raleway', sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: linear-gradient(to right, #f8f9fa, #e0f7fa);
+      color: #333;
+      min-height: 100vh;
+    }
+
+    section {
+      display: none;
+      max-width: 600px;
+      margin: auto;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    section.active {
+      display: block;
+    }
+
+    h1, h2 {
+      color: #00796b;
+      text-align: center;
+    }
+
+    label {
+      font-weight: 600;
+      margin-top: 1rem;
+      display: block;
+    }
+
+    input, select, textarea, button {
+      width: 100%;
+      padding: 0.7rem;
+      margin-top: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #00796b;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      margin-top: 1rem;
+    }
+
+    button:hover {
+      background-color: #004d40;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: #00796b;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: left;
+      margin-bottom: 1rem;
+      display: inline-block;
+    }
+
+    blockquote {
+      font-style: italic;
+      background-color: #ffffffaa;
+      border-left: 5px solid #00796b;
+      padding: 1rem;
+      margin: 2rem 0;
+      border-radius: 8px;
+    }
+
+    #starRating {
+      text-align: center;
+      font-size: 2rem;
+      margin: 1rem 0;
+      color: #ccc;
+    }
+
+    #starRating .star {
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    #starRating .star.selected,
+    #starRating .star:hover,
+    #starRating .star:hover ~ .star {
+      color: gold;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. Welcome Page -->
+  <section id="welcomePage" class="active">
+    <h1>✨ Welcome to the AI Quote Generator</h1>
+    <button onclick="goTo('signupPage')">Start</button>
+  </section>
+
+  <!-- 2. Signup Page -->
+  <section id="signupPage">
+    <button class="back-btn" onclick="goTo('welcomePage')">← Back</button>
+    <h2>🔐 Sign Up</h2>
+    <input id="nameInput" type="text" placeholder="Your Name" required />
+    <input id="emailInput" type="email" placeholder="Your Email" required />
+    <button onclick="goTo('contextPage')">Continue</button>
+  </section>
+
+  <!-- 3. Context Input Page -->
+  <section id="contextPage">
+    <button class="back-btn" onclick="goTo('signupPage')">← Back</button>
+    <h2>🎯 Enter Your Preferences</h2>
+    <form id="quoteForm">
+      <label>👥 Audience Type</label>
+      <select name="audience" required>
+        <option value="">-- Select Audience --</option>
+        <option value="students">Students</option>
+        <option value="leaders">Leaders</option>
+        <option value="artists">Artists</option>
+        <option value="entrepreneurs">Entrepreneurs</option>
+      </select>
+
+      <label>🎨 Tone</label>
+      <select name="tone" required>
+        <option value="">-- Select Tone --</option>
+        <option value="uplifting">Uplifting</option>
+        <option value="reflective">Reflective</option>
+        <option value="bold">Bold</option>
+        <option value="poetic">Poetic</option>
+      </select>
+
+      <label>📝 Format Preference</label>
+      <select name="format" required>
+        <option value="">-- Select Format --</option>
+        <option value="one-liner">One-liner</option>
+        <option value="short paragraph">Short Paragraph</option>
+        <option value="poetic style">Poetic Style</option>
+      </select>
+
+      <label>📌 Context (Why do you need the quote?)</label>
+      <textarea name="context" required placeholder="E.g., My friend is struggling with self-doubt"></textarea>
+
+      <button type="submit">✨ Generate Quote</button>
+    </form>
+  </section>
+
+  <!-- 4. Quote Page -->
+  <section id="quotePage">
+    <button class="back-btn" onclick="goTo('contextPage')">← Back</button>
+    <h2>💬 Here's Your AI-Generated Quote</h2>
+    <blockquote id="quoteOutput">⏳ Loading...</blockquote>
+    <button onclick="downloadQuote()">Download Quote</button>
+    <button onclick="goTo('feedbackPage')">Next</button>
+  </section>
+
+  <!-- 5. Feedback Page -->
+  <section id="feedbackPage">
+    <button class="back-btn" onclick="goTo('quotePage')">← Back</button>
+    <h2>⭐ Rate this Quote</h2>
+    <div id="starRating">
+      <span class="star" data-value="1">★</span>
+      <span class="star" data-value="2">★</span>
+      <span class="star" data-value="3">★</span>
+      <span class="star" data-value="4">★</span>
+      <span class="star" data-value="5">★</span>
+    </div>
+    <input type="hidden" id="ratingValue" value="0" />
+    <label>Give your feedback (optional)</label>
+    <textarea id="feedbackText" placeholder="Write your thoughts here..."></textarea>
+    <button onclick="goTo('thankYouPage')">Submit Feedback</button>
+  </section>
+
+  <!-- 6. Thank You Page -->
+  <section id="thankYouPage">
+    <h2>🙏 Thank You!</h2>
+    <p>We appreciate your feedback. Have a great day!</p>
+    <button onclick="goTo('welcomePage')">Start Over</button>
+  </section>
+
+  <script>
+    function goTo(sectionId) {
+      document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
+      document.getElementById(sectionId).classList.add("active");
+    }
+
+    const form = document.getElementById("quoteForm");
+    const quoteOutput = document.getElementById("quoteOutput");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const audience = formData.get("audience");
+      const tone = formData.get("tone");
+      const format = formData.get("format");
+      const context = formData.get("context");
+      quoteOutput.textContent = "⏳ Generating your quote...";
+
+      try {
+        const res = await fetch("http://localhost:3001/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ audience, tone, format, context }),
+        });
+        const data = await res.json();
+        quoteOutput.textContent = data.quote;
+        goTo("quotePage");
+      } catch {
+        quoteOutput.textContent = "❌ Failed to generate quote.";
+        goTo("quotePage");
+      }
+    });
+
+    function downloadQuote() {
+      const quote = quoteOutput.textContent;
+      const blob = new Blob([quote], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "quote.txt";
+      link.click();
+    }
+
+    // ⭐ Star Rating Logic
+    const stars = document.querySelectorAll('.star');
+    const ratingInput = document.getElementById('ratingValue');
+    stars.forEach((star, index) => {
+      star.addEventListener('click', () => {
+        ratingInput.value = star.dataset.value;
+        updateStars(index);
+      });
+    });
+    function updateStars(index) {
+      stars.forEach((star, i) => {
+        star.classList.toggle('selected', i <= index);
+      });
+    }
+  </script>
+</body>
+</html>
